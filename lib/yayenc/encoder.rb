@@ -40,6 +40,7 @@ module YAYEnc
       total_parts = (@src_io.size / @opts[:part_size]).ceil
       cur_part_num = 1
       start_byte = 1
+      crc32 = 0
 
       until @src_io.eof?
         part = encode_part(@src_io.read(@opts[:part_size]))
@@ -47,6 +48,9 @@ module YAYEnc
         part.part_total = total_parts
         part.start_byte = start_byte
         part.end_byte = start_byte + part.size
+
+        crc32 = Zlib.crc32_combine(crc32, part.pcrc32, part.size)
+        part.crc32 = crc32 if part.final_part?
 
         block_given? ? block.call(part) : parts << part
 
