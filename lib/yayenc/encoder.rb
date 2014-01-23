@@ -19,8 +19,10 @@ module YAYEnc
 
       if src.is_a?(String)
         @src_io = File.open(src, 'rb')
+        @opts[:file_name] = File.basename(src)
       elsif src.is_a?(IO)
         @src_io = src
+        @opts[:file_name] = opts.fetch(:name)
       else
         raise InvalidInputException 'src must be an IO object or a path to a file'
       end
@@ -33,6 +35,10 @@ module YAYEnc
       else
         @opts[:part_size] = @src_io.size
       end
+
+      puts @opts if $DEBUG
+
+      puts @src_io.size
     end
 
     def encode(&block)
@@ -44,6 +50,7 @@ module YAYEnc
 
       until @src_io.eof?
         part = encode_part(@src_io.read(@opts[:part_size]))
+        part.name = @opts[:file_name]
         part.part_num = cur_part_num
         part.part_total = total_parts
         part.start_byte = start_byte
