@@ -1,4 +1,4 @@
-YAYEnc is a 100% ruby yEnc encoder (no decoder yet).
+YAYEnc is a 100% Ruby yEnc encoder (no decoder yet).
 
 ---
 ## Synopsis ##
