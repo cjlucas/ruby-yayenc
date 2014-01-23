@@ -1,6 +1,6 @@
 module YAYEnc
   class Part
-    attr_accessor :lines, :line_width, :size, :name, :pcrc32, :crc32
+    attr_accessor :line_width, :size, :name, :pcrc32, :crc32
     attr_accessor :part_num, :part_total
     attr_accessor :start_byte, :end_byte
 
@@ -11,7 +11,11 @@ module YAYEnc
     end
 
     def <<(line)
-      lines << line
+      @lines << line
+    end
+
+    def data
+      @lines.join("\n")
     end
 
     def final_part?
@@ -26,7 +30,7 @@ module YAYEnc
       StringIO.new.tap do |sio|
         sio.write(ybegin << "\n")
         sio.write(ypart << "\n") if multi_part?
-        lines.each { |line| sio.write(line << "\n") }
+        sio.write(data << "\n")
         sio.write(yend << "\n")
         sio.rewind
       end
