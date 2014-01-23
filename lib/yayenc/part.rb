@@ -62,7 +62,7 @@ module YAYEnc
         line << '=yend'
         line << "size=#{size}"
         line << "part=#{part_num}" if multi_part?
-        line << "pcrc32=#{pcrc32.to_s(16)}" unless pcrc32.zero?
+        line << "pcrc32=#{pcrc32.to_s(16)}" unless pcrc32.zero? || !multi_part?
         line << "crc32=#{crc32.to_s(16)}" unless crc32.zero?
       end.join(' ')
     end
