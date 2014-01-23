@@ -29,7 +29,7 @@ module YAYEnc
 
       @opts[:multi_part] = opts.fetch(:multi_part, false)
       if @opts[:multi_part]
-        @opts[:part_size] ||= DEFAULT_PART_SIZE
+        @opts[:part_size] = opts.fetch(:part_size, DEFAULT_PART_SIZE)
       else
         @opts[:part_size] = @src_io.size
       end
