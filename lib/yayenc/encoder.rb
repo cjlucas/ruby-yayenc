@@ -37,7 +37,7 @@ module YAYEnc
 
     def encode(&block)
       parts = []
-      total_parts = (@src_io.size / @opts[:part_size]).ceil
+      total_parts = (@src_io.size / @opts[:part_size].to_f).ceil
       cur_part_num = 1
       start_byte = 1
       crc32 = 0
