@@ -1,6 +1,10 @@
-require_relative 'part'
+require 'stringio'
+require 'zlib'
 
 module YAYEnc
+
+  class InvalidInputException < Exception; end;
+
   class Encoder
     SPECIAL_BYTES = [0x00, 0x0A, 0x0D, 0x3D]
     DEFAULT_PART_SIZE = 500_000 - 1
@@ -18,7 +22,7 @@ module YAYEnc
       elsif src.is_a?(IO)
         @src_io = src
       else
-        # throw something
+        raise InvalidInputException 'src must be an IO object or a path to a file'
       end
 
       @src_io.rewind
