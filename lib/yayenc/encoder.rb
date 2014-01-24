@@ -10,11 +10,11 @@ module YAYEnc
     DEFAULT_PART_SIZE = 500_000 - 1
     LINE_WIDTH = 128
 
-    def self.encode(src, **opts, &block)
-      new(src, **opts).encode(&block)
+    def self.encode(src, options = {}, &block)
+      new(src, options).encode(&block)
     end
 
-    def initialize(src, **opts)
+    def initialize(src, options = {})
       @opts = {}
 
       if src.is_a?(String)
@@ -22,16 +22,16 @@ module YAYEnc
         @opts[:file_name] = File.basename(src)
       elsif src.is_a?(IO)
         @src_io = src
-        @opts[:file_name] = opts.fetch(:name)
+        @opts[:file_name] = options.fetch(:name)
       else
         raise InvalidInputException 'src must be an IO object or a path to a file'
       end
 
       @src_io.rewind
 
-      @opts[:multi_part] = opts.fetch(:multi_part, false)
+      @opts[:multi_part] = options.fetch(:multi_part, false)
       if @opts[:multi_part]
-        @opts[:part_size] = opts.fetch(:part_size, DEFAULT_PART_SIZE)
+        @opts[:part_size] = options.fetch(:part_size, DEFAULT_PART_SIZE)
       else
         @opts[:part_size] = @src_io.size
       end
