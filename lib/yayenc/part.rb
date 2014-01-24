@@ -71,7 +71,7 @@ module YAYEnc
       Array.new.tap do |head|
         head << '=ybegin'
         head << "part=#{part_num}" if multi_part?
-        head << "total=#{part_total}"
+        head << "total=#{part_total}" if multi_part?
         head << "line=#{line_width}"
         head << "size=#{total_size}"
         # "The filename must always be the last item on the header line."
