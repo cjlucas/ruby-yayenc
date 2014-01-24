@@ -39,11 +39,11 @@ class TestEncoderMultiPart < Test::Unit::TestCase
       assert_equal 11250,       part.part_size
       assert_equal 19338,       part.total_size
       assert_equal 3215875083,  part.pcrc32
-      
+
       assert part.multi_part?
       assert !part.final_part?
     end
-    
+
     parts[1].tap do |part|
       assert_equal 'dec2.jpg',  part.name
       assert_equal 2,           part.part_num
@@ -53,7 +53,7 @@ class TestEncoderMultiPart < Test::Unit::TestCase
       assert_equal 8088,        part.part_size
       assert_equal 19338,       part.total_size
       assert_equal 2896650307,  part.pcrc32
-      
+
       assert part.multi_part?
       assert part.final_part?
     end
