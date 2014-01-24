@@ -52,7 +52,7 @@ module YAYEnc
         part.part_num = cur_part_num
         part.part_total = total_parts
         part.start_byte = start_byte
-        part.end_byte = start_byte + part.part_size
+        part.end_byte = start_byte + part.part_size - 1
 
         crc32 = Zlib.crc32_combine(crc32, part.pcrc32, part.part_size)
         part.crc32 = crc32 if part.final_part?
