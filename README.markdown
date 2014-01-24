@@ -2,6 +2,8 @@ YAYEnc is a 100% Ruby yEnc encoder (no decoder yet).
 
 Disclaimer: This is considered alpha software, so the API may change without warning
 
+[![Build Status (master)](https://travis-ci.org/cjlucas/ruby-yayenc.png?branch=master "Branch: master")](https://travis-ci.org/cjlucas/ruby-yayenc)
+
 ---
 ## Synopsis ##
 ```ruby
