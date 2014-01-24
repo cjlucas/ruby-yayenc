@@ -111,46 +111,46 @@ module YAYEnc
     def self.parse_ybegin(part, line)
       line.chomp! # strip newline chars
 
-      m = /\sline\=(\d*)/.match(line)
-      part.line_width = m[1].to_i unless m.nil?
+      res = line[/\sline\=(\d*)/, 1]
+      part.line_width = res.to_i unless res.nil?
 
-      m = /\spart\=(\d*)/.match(line)
-      part.part_num = m[1].to_i unless m.nil?
+      res = line[/\spart\=(\d*)/, 1]
+      part.part_num = res.to_i unless res.nil?
 
-      m = /\stotal\=(\d*)/.match(line)
-      part.part_total = m[1].to_i unless m.nil?
+      res = line[/\stotal\=(\d*)/, 1]
+      part.part_total = res.to_i unless res.nil?
 
-      m = /\ssize\=(\d*)/.match(line)
-      part.total_size = m[1].to_i unless m.nil?
+      res = line[/\ssize\=(\d*)/, 1]
+      part.total_size = res.to_i unless res.nil?
 
-      m = /\sname\=(.*)$/.match(line)
-      part.name = m[1] unless m.nil?
+      res = line[/\sname\=(.*)$/, 1]
+      part.name = res unless res.nil?
     end
 
     def self.parse_ypart(part, line)
       line.chomp! # strip newline chars
 
-      m = /\sbegin\=(\d*)/.match(line)
-      part.start_byte = m[1].to_i unless m.nil?
+      res = line[/\sbegin\=(\d*)/, 1]
+      part.start_byte = res.to_i unless res.nil?
 
-      m = /\send\=(\d*)/.match(line)
-      part.end_byte = m[1].to_i unless m.nil?
+      res = line[/\send\=(\d*)/, 1]
+      part.end_byte = res.to_i unless res.nil?
     end
 
     def self.parse_yend(part, line)
       line.chomp! # strip newline chars
 
-      m = /\ssize\=(\d*)/.match(line)
-      part.part_size = m[1].to_i unless m.nil?
+      res = line[/\ssize\=(\d*)/, 1]
+      part.part_size = res.to_i unless res.nil?
 
-      m = /\spart\=(\d*)/.match(line)
-      part.part_num = m[1].to_i unless m.nil?
+      res = line[/\spart\=(\d*)/, 1]
+      part.part_num = res.to_i unless res.nil?
 
-      m = /\spcrc32\=(\w*)/.match(line)
-      part.pcrc32 = m[1].to_i(16) unless m.nil?
+      res = line[/\spcrc32\=(\w*)/, 1]
+      part.pcrc32 = res.to_i(16) unless res.nil?
 
-      m = /\scrc32\=(\w*)/.match(line)
-      part.crc32 = m[1].to_i(16) unless m.nil?
+      res = line[/\scrc32\=(\w*)/, 1]
+      part.crc32 = res.to_i(16) unless res.nil?
     end
   end
 end
