@@ -53,4 +53,14 @@ class TestPartParser < Test::Unit::TestCase
       assert part.final_part?
     end
   end
+
+  def test_part_parser_03
+    part = YAYEnc::Part.parse(File.read(file_path('enc1.txt')))
+
+    assert_equal 'enc1.txt',  part.name
+    assert_equal 584,         part.total_size
+    assert_equal 3738345295,  part.crc32
+    assert_equal 1,           part.start_byte
+    assert_equal 584,         part.end_byte
+  end
 end
