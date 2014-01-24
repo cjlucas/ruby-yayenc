@@ -48,12 +48,13 @@ module YAYEnc
       until @src_io.eof?
         part = encode_part(@src_io.read(@opts[:part_size]))
         part.name = @opts[:file_name]
+        part.total_size = @src_io.size
         part.part_num = cur_part_num
         part.part_total = total_parts
         part.start_byte = start_byte
-        part.end_byte = start_byte + part.size
+        part.end_byte = start_byte + part.part_size
 
-        crc32 = Zlib.crc32_combine(crc32, part.pcrc32, part.size)
+        crc32 = Zlib.crc32_combine(crc32, part.pcrc32, part.part_size)
         part.crc32 = crc32 if part.final_part?
 
         block_given? ? block.call(part) : parts << part
@@ -71,7 +72,7 @@ module YAYEnc
     def encode_part(data)
       part = Part.new
       part.line_width = LINE_WIDTH
-      part.size = data.size
+      part.part_size = data.size
 
       StringIO.open(data) do |data_io|
         until data_io.eof?

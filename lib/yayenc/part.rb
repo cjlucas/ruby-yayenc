@@ -1,6 +1,7 @@
 module YAYEnc
   class Part
-    attr_accessor :line_width, :size, :name, :pcrc32, :crc32
+    attr_accessor :line_width, :name, :pcrc32, :crc32
+    attr_accessor :part_size, :total_size
     attr_accessor :part_num, :part_total
     attr_accessor :start_byte, :end_byte
 
@@ -42,7 +43,7 @@ module YAYEnc
       Array.new.tap do |head|
         head << '=ybegin'
         head << "part=#{part_num}" if multi_part?
-        head << "total=#{part_total}" if multi_part?
+        head << "total=#{total_size}"
         head << "line=#{line_width}"
         # "The filename must always be the last item on the header line."
         head << "name=#{name}" unless name.nil?
@@ -60,7 +61,7 @@ module YAYEnc
     def yend
       Array.new.tap do |line|
         line << '=yend'
-        line << "size=#{size}"
+        line << "size=#{part_size}" if multi_part?
         line << "part=#{part_num}" if multi_part?
         line << "pcrc32=#{pcrc32.to_s(16)}" unless pcrc32.zero? || !multi_part?
         line << "crc32=#{crc32.to_s(16)}" unless crc32.zero?
