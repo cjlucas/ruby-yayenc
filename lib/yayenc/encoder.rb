@@ -7,7 +7,6 @@ module YAYEnc
 
   class Encoder
     SPECIAL_BYTES = [0x00, 0x0A, 0x0D, 0x3D]
-    DEFAULT_PART_SIZE = 500_000 - 1
     LINE_WIDTH = 128
 
     def self.encode(src, options = {}, &block)
@@ -29,13 +28,7 @@ module YAYEnc
 
       @src_io.rewind
 
-      @opts[:multi_part] = options.fetch(:multi_part, false)
-      if @opts[:multi_part]
-        @opts[:part_size] = options.fetch(:part_size, DEFAULT_PART_SIZE)
-      else
-        @opts[:part_size] = @src_io.size
-      end
-
+      @opts[:part_size] = options.fetch(:part_size, @src_io.size)
     end
 
     def encode(&block)
