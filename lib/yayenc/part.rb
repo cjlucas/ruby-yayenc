@@ -22,6 +22,10 @@ module YAYEnc
     def final_part?
       part_num == part_total
     end
+    
+    def multi_part?
+      part_total > 1
+    end
 
     def to_s
       to_io.read
@@ -67,10 +71,5 @@ module YAYEnc
         line << "crc32=#{crc32.to_s(16)}" unless crc32.zero?
       end.join(' ')
     end
-
-    def multi_part?
-      part_total > 1
-    end
-
   end
 end
