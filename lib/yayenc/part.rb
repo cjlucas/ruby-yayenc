@@ -33,6 +33,8 @@ module YAYEnc
       @lines = []
       @pcrc32 = 0
       @crc32 = 0
+      @part_num = 1
+      @part_total = 1
     end
 
     def <<(line)
