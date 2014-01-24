@@ -25,6 +25,7 @@ class TestEncoderMultiPart < Test::Unit::TestCase
 
   def test_part_values
     parts = YAYEnc::Encoder.encode(file_path('dec2.jpg'),
+                                   line_width: 128,
                                    part_size: 11250)
 
     assert_equal 2, parts.size

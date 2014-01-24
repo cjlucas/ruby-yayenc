@@ -7,7 +7,7 @@ module YAYEnc
 
   class Encoder
     SPECIAL_BYTES = [0x00, 0x0A, 0x0D, 0x3D]
-    LINE_WIDTH = 128
+    DEFAULT_LINE_WIDTH = 128
 
     def self.encode(src, options = {}, &block)
       new(src, options).encode(&block)
@@ -29,6 +29,7 @@ module YAYEnc
       @src_io.rewind
 
       @opts[:part_size] = options.fetch(:part_size, @src_io.size)
+      @opts[:line_width] = options.fetch(:line_width, DEFAULT_LINE_WIDTH)
     end
 
     def encode(&block)
@@ -64,12 +65,12 @@ module YAYEnc
 
     def encode_part(data)
       part = Part.new
-      part.line_width = LINE_WIDTH
+      part.line_width = @opts[:line_width]
       part.part_size = data.size
 
       StringIO.open(data) do |data_io|
         until data_io.eof?
-          line_data = data_io.read(LINE_WIDTH)
+          line_data = data_io.read(@opts[:line_width])
           part.pcrc32 = Zlib.crc32(line_data, part.pcrc32)
           part << encode_line(line_data).read
         end
