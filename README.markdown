@@ -1,12 +1,14 @@
 YAYEnc is a 100% Ruby yEnc encoder (no decoder yet).
 
+Disclaimer: This is considered alpha software, so the API may change without warning
+
 ---
 ## Synopsis ##
 ```ruby
 require 'yayenc'
 
-encoder = YAYEnc::Encoder.new('spec/files/test1.txt')
-parts = encoder.encode # get an array of yEnc encoded part(s)
+# get an array of yEnc encoded part(s)
+parts = YAYEnc::Encoder.encode('spec/files/test1.txt')
 
 # Or you may use the preferred block interface
 

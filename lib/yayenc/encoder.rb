@@ -36,9 +36,6 @@ module YAYEnc
         @opts[:part_size] = @src_io.size
       end
 
-      puts @opts if $DEBUG
-
-      puts @src_io.size
     end
 
     def encode(&block)
