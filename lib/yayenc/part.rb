@@ -33,10 +33,10 @@ module YAYEnc
 
     def to_io
       StringIO.new.tap do |sio|
-        sio.write(ybegin << "\n")
-        sio.write(ypart << "\n") if multi_part?
-        sio.write(data << "\n")
-        sio.write(yend << "\n")
+        sio.write(ybegin << "\r\n")
+        sio.write(ypart << "\r\n") if multi_part?
+        sio.write(data << "\r\n")
+        sio.write(yend << "\r\n")
         sio.rewind
       end
     end
