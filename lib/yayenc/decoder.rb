@@ -69,7 +69,7 @@ module YAYEnc
     end
 
     def logw(str)
-      warn str if @opts[:warn]
+      warn str if @opts[:warn] || @opts[:debug]
     end
 
     def logd(str)
