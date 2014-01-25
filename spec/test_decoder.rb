@@ -18,6 +18,10 @@ class TestDecoderSinglePart < Test::Unit::TestCase
     sio.rewind
     data = sio.read
 
-    assert_equal File.read(file_path(decoded_file)), data
+    expected_data = File.read(file_path(decoded_file))
+
+    assert_equal expected_data.size, data.size
+
+    (0...expected_data.size).each { |i| assert_equal expected_data[i], data[i] }
   end
 end
