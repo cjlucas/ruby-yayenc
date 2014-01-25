@@ -1,8 +1,14 @@
 require 'simplecov'
 require 'coveralls'
 
-SimpleCov::Formatter::MultiFormatter[
-  SimpleCov::Formatter::HTMLFormatter,
+class SimpleFormatter
+  def format(result)
+    puts "Coverage: #{result.covered_lines} / #{result.total_lines} LOC (#{result.covered_percent.round(2)}%) covered."
+  end
+end
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleFormatter,
   Coveralls::SimpleCov::Formatter
 ]
 
