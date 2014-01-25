@@ -1,6 +1,7 @@
 require 'stringio'
 require 'zlib'
 
+require 'yayenc/compat'
 require 'yayenc/part'
 
 module YAYEnc
