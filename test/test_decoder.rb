@@ -1,7 +1,5 @@
 require_relative 'test_helper'
 
-require 'test/unit'
-require 'pathname'
 
 module TestDecoderCompareData
   def compare_data(data1, data2)
@@ -75,6 +73,28 @@ class TestDecoderMultiPart < Test::Unit::TestCase
     assert @dec.done?
 
     assert_equal 1285118361, @dec.crc32
+
+    @sio.rewind
+    compare_data expected_data, @sio.read
+  end
+
+  def test_decode_03
+    expected_data = File.read(file_path('dec3.bin'))
+
+    @dec.feed(File.read(file_path('dec3.bin-001.ync')))
+    assert !@dec.done?
+    @dec.feed(File.read(file_path('dec3.bin-005.ync')))
+    assert !@dec.done?
+    @dec.feed(File.read(file_path('dec3.bin-003.ync')))
+    assert !@dec.done?
+    @dec.feed(File.read(file_path('dec3.bin-006.ync')))
+    assert !@dec.done?
+    @dec.feed(File.read(file_path('dec3.bin-002.ync')))
+    assert !@dec.done?
+    @dec.feed(File.read(file_path('dec3.bin-004.ync')))
+    assert @dec.done?
+
+    assert_equal 933888609, @dec.crc32
 
     @sio.rewind
     compare_data expected_data, @sio.read
