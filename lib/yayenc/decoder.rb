@@ -5,7 +5,20 @@ require 'yayenc/part'
 
 module YAYEnc
   class Decoder
+
     def initialize(dest, options = {})
+      @opts = {}
+      @opts[:verify] = options.fetch(:verify, true)
+      @opts[:warn] = options.fetch(:warn, false)
+      @opts[:debug] = options.fetch(:debug, $DEBUG)
+
+      @name = nil
+      @expected_size = 0
+      @actual_size = 0
+      # store the crc32 for each part to calculate the crc32 of the combined data
+      # key: byte range value: pcrc32 integer value
+      @pcrc32 = {}
+
       if dest.is_a?(String)
         raise NotImplementedError, 'String input is not supported'
         #raise ArgumentError, 'If dest is a String, it must be a directory path' unless Dir.exists?(dest)
@@ -16,15 +29,37 @@ module YAYEnc
       else
         raise ArgumentError, 'dest must be either String or IO'
       end
+    end
 
-      @opts = {}
-      @opts[:verify] = options.fetch(:verify, true)
-      @opts[:warn] = options.fetch(:warn, false)
-      @opts[:debug] = options.fetch(:debug, $DEBUG)
+    def name
+      @name
+    end
+
+    def name=(value)
+      unless @name.nil? || @name.eql?(value)
+        warn 'resetting name to a different name'
+      end
+
+      @name = value
+    end
+
+    def expected_size
+      @expected_size
+    end
+
+    def expected_size=(value)
+      unless @expected_size.zero? || value == @expected_size
+        warn 'changing expected_size'
+      end
+
+      @expected_size = value
     end
 
     def feed(data)
       part = Part.parse(data)
+      self.name = part.name
+      self.expected_size = part.total_size
+
       decoded_io = decode_part(part)
 
       # pos is zero-indexed
@@ -37,7 +72,37 @@ module YAYEnc
 
     end
 
+    def done?
+      sbr = sorted_byte_ranges
+      return false if sbr[0].begin != 1 || sbr[-1].end != expected_size
+
+      current_begin = 1
+      sbr.each do |range|
+        return false if range.begin != current_begin
+        current_begin = range.end + 1
+      end
+
+      true
+    end
+
+    def crc32
+      warn 'missing parts, crc32 will be incorrect' unless done?
+      sbr = sorted_byte_ranges
+
+      return 0 if sbr.empty?
+
+      crc32 = @pcrc32[sbr[0]]
+      return crc32 if sbr.size == 1
+
+      sbr[1..-1].each do |range|
+        crc32 = Zlib.crc32_combine(crc32, @pcrc32[range], range.size)
+      end
+
+      crc32
+    end
+
     private
+
 
     def decode_part(part)
       sio = StringIO.new
@@ -55,7 +120,12 @@ module YAYEnc
         sio.rewind
         data = sio.read
 
-        logw 'pcrc32 values do not match' unless Zlib.crc32(data, 0) == part.pcrc32
+        @actual_size += data.size
+
+        pcrc32 = Zlib.crc32(data, 0)
+        @pcrc32[part.byte_range] = pcrc32
+
+        logw 'pcrc32 values do not match' unless pcrc32 == part.pcrc32
         logw 'part size does not match' unless data.size == part.part_size
       end
 
@@ -66,6 +136,10 @@ module YAYEnc
     def decode_byte(byte, esc)
       byte = (byte - 64) % 256 if esc
       byte = (byte - 42) % 256
+    end
+
+    def sorted_byte_ranges
+      @pcrc32.keys.sort { |a, b| a.begin <=> b.begin }
     end
 
     def logw(str)

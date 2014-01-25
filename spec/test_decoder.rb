@@ -28,6 +28,9 @@ class TestDecoderSinglePart < Test::Unit::TestCase
 
     @dec.feed(File.read(file_path(encoded_file)))
 
+    assert @dec.done?
+
+    assert_equal 3738345295, @dec.crc32
 
     @sio.rewind
     compare_data expected_data, @sio.read
@@ -50,7 +53,12 @@ class TestDecoderMultiPart < Test::Unit::TestCase
     expected_data = File.read(file_path('dec2.jpg'))
 
     @dec.feed(File.read(file_path('enc2.p1.txt')))
+    assert !@dec.done?
+
     @dec.feed(File.read(file_path('enc2.p2.txt')))
+    assert @dec.done?
+
+    assert_equal 1285118361, @dec.crc32
 
     @sio.rewind
     compare_data expected_data, @sio.read
@@ -63,7 +71,11 @@ class TestDecoderMultiPart < Test::Unit::TestCase
     expected_data = File.read(file_path('dec2.jpg'))
 
     @dec.feed(File.read(file_path('enc2.p2.txt')))
+    assert !@dec.done?
     @dec.feed(File.read(file_path('enc2.p1.txt')))
+    assert @dec.done?
+
+    assert_equal 1285118361, @dec.crc32
 
     @sio.rewind
     compare_data expected_data, @sio.read

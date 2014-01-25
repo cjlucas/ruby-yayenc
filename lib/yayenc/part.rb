@@ -50,6 +50,10 @@ module YAYEnc
       @lines.join("\r\n")
     end
 
+    def byte_range
+      (start_byte..end_byte)
+    end
+
     def final_part?
       multi_part? ? end_byte == total_size : true
     end
