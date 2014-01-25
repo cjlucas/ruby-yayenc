@@ -6,6 +6,7 @@ module YAYEnc
     attr_accessor :part_size, :total_size
     attr_accessor :part_num, :part_total
     attr_accessor :start_byte, :end_byte
+    attr_accessor :multi_part
 
     def self.parse(input)
       part = Part.new
@@ -17,15 +18,18 @@ module YAYEnc
         # a regexp check is used on a yEnc data line, so use substring
         part << line and next unless line[0, 2].eql?("=y")
 
+        part.multi_part = true if line =~ /^=ypart\s/i
+
         self.parse_line(part, line)
         in_data = true
 
         break if line =~ /^=yend/i
       end
 
+      # required for decoding
       unless part.multi_part?
-        part.start_byte = 1
-        part.end_byte = part.total_size
+        part.start_byte ||= 1
+        part.end_byte ||= part.total_size
       end
 
       part
@@ -51,7 +55,8 @@ module YAYEnc
     end
 
     def multi_part?
-      (part_total || 0) > 1
+      # part_total will be nil if total= attribute isn't found
+      !!@multi_part || (part_total || 0) > 1
     end
 
     def to_s
@@ -113,6 +118,7 @@ module YAYEnc
 
     def self.parse_ybegin(part, line)
       line.chomp! # strip newline chars
+      line.chomp!("\s")
 
       res = line[/\sline\=(\d*)/, 1]
       part.line_width = res.to_i unless res.nil?
@@ -120,6 +126,7 @@ module YAYEnc
       res = line[/\spart\=(\d*)/, 1]
       part.part_num = res.to_i unless res.nil?
 
+      # NOTE: total was not part of the spec until v1.2
       res = line[/\stotal\=(\d*)/, 1]
       part.part_total = res.to_i unless res.nil?
 

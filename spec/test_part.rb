@@ -66,7 +66,7 @@ class TestPartParser < Test::Unit::TestCase
     part = YAYEnc::Part.parse(File.read(file_path('enc2.p1.txt')))
     assert_equal 'joystick.jpg',  part.name
     assert_equal 1,               part.part_num
-    assert_equal 2,               part.part_total
+    assert_equal nil,             part.part_total
     assert_equal 1,               part.start_byte
     assert_equal 11250,           part.end_byte
     assert_equal 11250,           part.part_size
@@ -76,7 +76,7 @@ class TestPartParser < Test::Unit::TestCase
     part = YAYEnc::Part.parse(File.read(file_path('enc2.p2.txt')))
     assert_equal 'joystick.jpg',  part.name
     assert_equal 2,               part.part_num
-    assert_equal 2,               part.part_total
+    assert_equal nil,             part.part_total
     assert_equal 11251,           part.start_byte
     assert_equal 19338,           part.end_byte
     assert_equal 8088,            part.part_size
