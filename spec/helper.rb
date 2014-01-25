@@ -1,5 +1,10 @@
+require 'simplecov'
 require 'coveralls'
-Coveralls.wear!
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov.start do
+  add_filter '/spec/'
+end
 
 module YAYEncSpecHelper
   FILES_DIR = Pathname.new(File.expand_path('../files', __FILE__)).freeze
