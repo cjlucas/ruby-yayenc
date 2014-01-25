@@ -1,8 +1,4 @@
-require 'test/unit'
-require 'pathname'
-
 require_relative 'helper'
-require 'yayenc/compat'
 
 class TestCompat < Test::Unit::TestCase
   def test_range_size

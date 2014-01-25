@@ -1,10 +1,19 @@
 require 'simplecov'
 require 'coveralls'
 
-SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+
 SimpleCov.start do
   add_filter '/spec/'
 end
+
+require 'test/unit'
+require 'pathname'
+
+require 'yayenc'
 
 module YAYEncSpecHelper
   FILES_DIR = Pathname.new(File.expand_path('../files', __FILE__)).freeze

@@ -1,8 +1,4 @@
-require 'test/unit'
-require 'pathname'
-
 require_relative 'helper'
-require 'yayenc'
 
 class TestEncoderSinglePart < Test::Unit::TestCase
   include YAYEncSpecHelper

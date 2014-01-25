@@ -1,8 +1,7 @@
+require_relative 'helper'
+
 require 'test/unit'
 require 'pathname'
-
-require_relative 'helper'
-require 'yayenc'
 
 module TestDecoderCompareData
   def compare_data(data1, data2)
