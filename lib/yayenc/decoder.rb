@@ -15,6 +15,10 @@ module YAYEnc
       else
         raise ArgumentError, 'dest must be either String or IO'
       end
+
+      @opts = {}
+      @opts[:warn] = true
+      @opts[:verify] = true
     end
 
     def feed(data)
@@ -35,6 +39,7 @@ module YAYEnc
 
     def decode_part(part)
       sio = StringIO.new
+      esc = false
 
       part.data.each_byte do |byte|
         next if byte == 0x0A || byte == 0x0D # skip LF/CR
@@ -50,7 +55,13 @@ module YAYEnc
 
     def decode_byte(byte, esc)
       byte = (byte - 64) % 256 if esc
-      (byte - 42) % 256
+      byte = (byte - 42) % 256
+    end
+
+    private
+
+    def warn(str)
+      $stderr.write(str << "\r\n") if @opts[:warn]
     end
   end
 end
