@@ -1,3 +1,5 @@
+require 'stringio'
+
 module YAYEnc
   class Part
     attr_accessor :line_width, :name, :pcrc32, :crc32
@@ -38,11 +40,11 @@ module YAYEnc
     end
 
     def <<(line)
-      @lines << line
+      @lines << line.chomp
     end
 
     def data
-      @lines.join("\n")
+      @lines.join("\r\n")
     end
 
     def final_part?
