@@ -30,33 +30,29 @@ class TestEncoderMultiPart < Test::Unit::TestCase
 
     assert_equal 2, parts.size
 
-    parts[0].tap do |part|
-      assert_equal 'dec2.jpg',  part.name
-      assert_equal 1,           part.part_num
-      assert_equal 2,           part.part_total
-      assert_equal 1,           part.start_byte
-      assert_equal 11250,       part.end_byte
-      assert_equal 11250,       part.part_size
-      assert_equal 19338,       part.total_size
-      assert_equal 3215875083,  part.pcrc32
+    assert_equal 'dec2.jpg',  part[0].name
+    assert_equal 1,           part[0].part_num
+    assert_equal 2,           part[0].part_total
+    assert_equal 1,           part[0].start_byte
+    assert_equal 11250,       part[0].end_byte
+    assert_equal 11250,       part[0].part_size
+    assert_equal 19338,       part[0].total_size
+    assert_equal 3215875083,  part[0].pcrc32
 
-      assert part.multi_part?
-      assert !part.final_part?
-    end
+    assert part.multi_part?
+    assert !part.final_part?
 
-    parts[1].tap do |part|
-      assert_equal 'dec2.jpg',  part.name
-      assert_equal 2,           part.part_num
-      assert_equal 2,           part.part_total
-      assert_equal 11251,       part.start_byte
-      assert_equal 19338,       part.end_byte
-      assert_equal 8088,        part.part_size
-      assert_equal 19338,       part.total_size
-      assert_equal 2896650307,  part.pcrc32
+    assert_equal 'dec2.jpg',  part[1].name
+    assert_equal 2,           part[1].part_num
+    assert_equal 2,           part[1].part_total
+    assert_equal 11251,       part[1].start_byte
+    assert_equal 19338,       part[1].end_byte
+    assert_equal 8088,        part[1].part_size
+    assert_equal 19338,       part[1].total_size
+    assert_equal 2896650307,  part[1].pcrc32
 
-      assert part.multi_part?
-      assert part.final_part?
-    end
+    assert part.multi_part?
+    assert part.final_part?
 
   end
 end
