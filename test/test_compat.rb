@@ -1,4 +1,4 @@
-require_relative 'helper'
+require_relative 'test_helper'
 
 class TestCompat < Test::Unit::TestCase
   def test_range_size

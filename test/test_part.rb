@@ -1,4 +1,4 @@
-require_relative 'helper'
+require_relative 'test_helper'
 
 class TestPartParser < Test::Unit::TestCase
   include YAYEncSpecHelper
