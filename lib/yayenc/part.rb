@@ -36,7 +36,6 @@ module YAYEnc
       @pcrc32 = 0
       @crc32 = 0
       @part_num = 1
-      @part_total = 1
     end
 
     def <<(line)
@@ -48,11 +47,11 @@ module YAYEnc
     end
 
     def final_part?
-      part_num == part_total
+      multi_part? ? end_byte == total_size : true
     end
 
     def multi_part?
-      part_total > 1
+      (part_total || 0) > 1
     end
 
     def to_s
