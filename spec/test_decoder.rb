@@ -7,7 +7,8 @@ require 'yayenc'
 module TestDecoderCompareData
   def compare_data(data1, data2)
     assert_equal data1.size, data2.size
-    (0...data1.size).each { |i| assert_equal data1[i], data2[i] }
+    assert_equal data1, data2
+    #(0...data1.size).each { |i| assert_equal data1[i], data2[i] }
   end
 end
 
