@@ -8,8 +8,8 @@ task :default => [:test]
 
 task :test do
   Rake::TestTask.new do |t|
-    t.libs << 'spec'
-    t.test_files = FileList['spec/test_*.rb']
+    t.libs << 'test'
+    t.test_files = FileList['test/test_*.rb']
     t.verbose = false
   end
 end
