@@ -1,3 +1,4 @@
+require 'yayenc/compat'
 require 'yayenc/part'
 require 'yayenc/encoder'
 require 'yayenc/decoder'

@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 module YAYEncSpecHelper
   FILES_DIR = Pathname.new(File.expand_path('../files', __FILE__)).freeze
 
