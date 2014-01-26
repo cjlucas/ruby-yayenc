@@ -6,7 +6,7 @@ module YAYEnc
   class InvalidInputException < Exception; end;
 
   class Encoder
-    SPECIAL_BYTES = [0x00, 0x0A, 0x0D, 0x3D]
+    SPECIAL_BYTES = [0x00, 0x0A, 0x0D, 0x3D, 0x2E]
     DEFAULT_LINE_WIDTH = 128
 
     def self.encode(src, options = {}, &block)
