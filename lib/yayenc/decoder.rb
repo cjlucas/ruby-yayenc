@@ -16,6 +16,7 @@ module YAYEnc
 
       @dirname = nil # used if dest is a directory
       @name = nil
+      @expected_crc32 = 0
       @expected_size = 0
       @actual_size = 0
       # store the crc32 for each part to calculate the crc32 of the combined data
@@ -50,6 +51,7 @@ module YAYEnc
       part = Part.parse(data)
       self.name = part.name
       self.expected_size = part.total_size
+      @expected_crc32 = part.crc32 unless part.crc32.zero?
 
       decoded_io = decode_part(part)
 
@@ -124,19 +126,18 @@ module YAYEnc
         esc = false
       end
 
+      sio.rewind
+      data = sio.read
+      data_size = sio.size
+
+      @actual_size += data_size
+      pcrc32 = Zlib.crc32(data, 0)
+      @pcrc32[part.byte_range] = pcrc32
+
       if @opts[:verify]
-        sio.rewind
-        data = sio.read
-        data_size = sio.size
-
-        @actual_size += data_size
-
-        pcrc32 = Zlib.crc32(data, 0)
-        @pcrc32[part.byte_range] = pcrc32
-
         unless pcrc32 == part.pcrc32
           logw 'pcrc32 values do not match'
-          logd "actual: #{pcrc32}, expected: #{part.pcrc32}"
+          logd "actual: #{pcrc32.to_s(16)}, expected: #{part.pcrc32.to_s(16)}"
         end
 
         unless data_size == part.part_size
@@ -146,9 +147,20 @@ module YAYEnc
         end
       end
 
-      @done = done?
+      if @done = done? && @opts[:verify]
+        logd "received all parts"
+        crc32_value = crc32
+        unless crc32_value == @expected_crc32
+          logw 'crc32 values do not match'
+          logd "actual: #{crc32_value.to_s(16)}, expected: #{@expected_crc32.to_s(16)}"
+        end
 
-      logd "received all bytes" if @opts[:debug] && done?
+        unless @actual_size == @expected_size
+          logw 'total size does not match'
+          logd "actual: #{@actual_size}, expected: #{@expected_size}"
+        end
+      end
+
 
       sio.rewind
       sio
