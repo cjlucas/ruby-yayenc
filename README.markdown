@@ -7,6 +7,9 @@ Disclaimer: This is considered alpha software, so the API may change without war
 
 ---
 ## Synopsis ##
+
+#### Encoding ####
+
 ```ruby
 require 'yayenc'
 
@@ -32,8 +35,33 @@ YAYEnc::Encoder.encode(File.open('spec/files/test1.txt', 'rb'), :name => 'test1.
   # ... encoded data ...
   # =yend size=584 crc32=ded29f4f
 end
+```
+
+#### Decoding ####
+
+```ruby
+
+require 'yayenc'
+
+# Decoder will accept either a destination directory
+# or a StringIO object to write to
+decoder = YAYEncode::Decoder.new('/path/to/destination')
+
+# feed decoder yEnc data
+decoder.feed(File.read('encoded.bin-001.ync'))
+decoder.feed(File.read('encoded.bin-003.ync')) # data can be fed out of order
+decoder.feed(File.read('encoded.bin-002.ync'))
+
+# check if all parts have been fed to decoder
+decoder.done?
+# => true
+
+# get path of decoded file
+puts decoder.file_path
+# /path/to/destination/encoded.bin
 
 ```
+
 ## Requirements ##
 - Supported Ruby Versions
   - 1.9.3
