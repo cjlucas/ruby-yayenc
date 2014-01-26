@@ -115,7 +115,13 @@ class TestDecoderDataVerification < Test::Unit::TestCase
     # feed good data before bad so we can check if #errors? changes
     @dec.feed(File.read(file_path('dec3.bin-002.ync')))
 
-    @data6_bytes = File.read(file_path('dec3.bin-006.ync')).bytes
+    # since String#bytes in Ruby 1.9 doesn't return an array
+    # we have to use #each_byte
+
+    @data6_bytes = []
+    File.read(file_path('dec3.bin-006.ync')).each_byte do |byte|
+      @data6_bytes << byte
+    end
   end
 
 
