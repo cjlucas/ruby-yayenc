@@ -1,3 +1,4 @@
+require 'pathname'
 require 'stringio'
 require 'zlib'
 
@@ -13,18 +14,19 @@ module YAYEnc
       @opts[:warn] = options.fetch(:warn, false)
       @opts[:debug] = options.fetch(:debug, $DEBUG)
 
+      @dirname = nil # used if dest is a directory
       @name = nil
       @expected_size = 0
       @actual_size = 0
       # store the crc32 for each part to calculate the crc32 of the combined data
       # key: byte range value: pcrc32 integer value
       @pcrc32 = {}
+      @done = false # flag set when all parts are processed
 
       if dest.is_a?(String)
-        raise NotImplementedError, 'String input is not supported'
-        #raise ArgumentError, 'If dest is a String, it must be a directory path' unless Dir.exists?(dest)
-
-        #@dest = Pathname.new(dest)
+        @dirname = Pathname.new(dest)
+        raise ArgumentError, 'Directory does not exist' unless @dirname.directory?
+        raise ArgumentError, 'Directory is not writable' unless @dirname.writable?
       elsif dest.is_a?(StringIO)
         @dest_io = dest
       else
@@ -71,9 +73,14 @@ module YAYEnc
     def dest_io
       return @dest_io unless @dest_io.nil?
 
+      path = @dirname + @name
+      logd "will write decoded data to #{path}"
+      @dest_io = File.open(path, 'wb')
     end
 
     def done?
+      return true if @done
+
       sbr = sorted_byte_ranges
       return false if sbr[0].begin != 1 || sbr[-1].end != expected_size
 
@@ -120,15 +127,28 @@ module YAYEnc
       if @opts[:verify]
         sio.rewind
         data = sio.read
+        data_size = sio.size
 
-        @actual_size += data.size
+        @actual_size += data_size
 
         pcrc32 = Zlib.crc32(data, 0)
         @pcrc32[part.byte_range] = pcrc32
 
-        logw 'pcrc32 values do not match' unless pcrc32 == part.pcrc32
-        logw 'part size does not match' unless data.size == part.part_size
+        unless pcrc32 == part.pcrc32
+          logw 'pcrc32 values do not match'
+          logd "actual: #{pcrc32}, expected: #{part.pcrc32}"
+        end
+
+        unless data_size == part.part_size
+          logd "sio.size: #{sio.size}"
+          logw 'part size does not match'
+          logd "actual: #{data_size}, expected: #{part.part_size}"
+        end
       end
+
+      @done = done?
+
+      logd "received all bytes" if @opts[:debug] && done?
 
       sio.rewind
       sio
@@ -144,11 +164,11 @@ module YAYEnc
     end
 
     def logw(str)
-      warn str if @opts[:warn] || @opts[:debug]
+      $stderr.write("warning: #{str}\r\n") if @opts[:warn] || @opts[:debug]
     end
 
     def logd(str)
-      $stderr.write(str << "\r\n") if @opts[:debug]
+      $stderr.write("debug: #{str}\r\n") if @opts[:debug]
     end
   end
 end
