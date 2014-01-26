@@ -1,5 +1,11 @@
 require_relative 'test_helper'
 
+module TestDecoderSetup
+  def setup
+    @sio = StringIO.new
+    @dec = YAYEnc::Decoder.new(@sio)
+  end
+end
 
 module TestDecoderCompareData
   def compare_data(data1, data2)
@@ -11,12 +17,9 @@ end
 
 class TestDecoderSinglePart < Test::Unit::TestCase
   include YAYEncSpecHelper
+  include TestDecoderSetup
   include TestDecoderCompareData
 
-  def setup
-    @sio = StringIO.new
-    @dec = YAYEnc::Decoder.new(@sio)
-  end
 
   def test_decode_01
     encoded_file = 'enc1.txt'
@@ -25,6 +28,7 @@ class TestDecoderSinglePart < Test::Unit::TestCase
 
     @dec.feed(File.read(file_path(encoded_file)))
 
+    assert !@dec.errors?
     assert @dec.done?
 
     assert_equal 3738345295, @dec.crc32
@@ -36,12 +40,8 @@ end
 
 class TestDecoderMultiPart < Test::Unit::TestCase
   include YAYEncSpecHelper
+  include TestDecoderSetup
   include TestDecoderCompareData
-
-  def setup
-    @sio = StringIO.new
-    @dec = YAYEnc::Decoder.new(@sio)
-  end
 
   #
   # Test multipart by feeding data in proper order
@@ -54,6 +54,7 @@ class TestDecoderMultiPart < Test::Unit::TestCase
 
     @dec.feed(File.read(file_path('enc2.p2.txt')))
     assert @dec.done?
+    assert !@dec.errors?
 
     assert_equal 1285118361, @dec.crc32
 
@@ -71,6 +72,8 @@ class TestDecoderMultiPart < Test::Unit::TestCase
     assert !@dec.done?
     @dec.feed(File.read(file_path('enc2.p1.txt')))
     assert @dec.done?
+    assert !@dec.errors?
+
 
     assert_equal 1285118361, @dec.crc32
 
@@ -93,10 +96,68 @@ class TestDecoderMultiPart < Test::Unit::TestCase
     assert !@dec.done?
     @dec.feed(File.read(file_path('dec3.bin-004.ync')))
     assert @dec.done?
+    assert !@dec.errors?
 
     assert_equal 933888609, @dec.crc32
 
     @sio.rewind
     compare_data expected_data, @sio.read
+  end
+end
+
+class TestDecoderDataVerification < Test::Unit::TestCase
+  include YAYEncSpecHelper
+  include TestDecoderSetup
+
+  def setup
+    super
+
+    # feed good data before bad so we can check if #errors? changes
+    @dec.feed(File.read(file_path('dec3.bin-002.ync')))
+
+    @data6_bytes = File.read(file_path('dec3.bin-006.ync')).bytes
+  end
+
+
+  def test_bad_data
+    # change byte from 143 to 99
+    @data6_bytes[100] = 99
+
+    assert !@dec.errors?
+    @dec.feed(@data6_bytes.pack('c*'))
+    assert @dec.errors?
+  end
+
+  def test_bad_size
+    # add byte
+    @data6_bytes.insert(100, 99)
+
+    assert !@dec.errors?
+    @dec.feed(@data6_bytes.pack('c*'))
+    assert @dec.errors?
+  end
+
+  def test_bad_crc32
+    # change crc32 value (from 37AA0261 to 37AA0262)
+    @data6_bytes[-3] = 50
+
+    @dec.feed(File.read(file_path('dec3.bin-001.ync')))
+    @dec.feed(File.read(file_path('dec3.bin-002.ync')))
+    @dec.feed(File.read(file_path('dec3.bin-003.ync')))
+    @dec.feed(File.read(file_path('dec3.bin-004.ync')))
+    @dec.feed(File.read(file_path('dec3.bin-005.ync')))
+
+    assert !@dec.errors?
+    @dec.feed(@data6_bytes.pack('c*'))
+    assert @dec.errors?
+  end
+
+  def test_bad_pcrc32
+    # change pcrc32 value (from 7DDB04A9 to 7DDB04B9)
+    @data6_bytes[-19] = 66
+
+    assert !@dec.errors?
+    @dec.feed(@data6_bytes.pack('c*'))
+    assert @dec.errors?
   end
 end

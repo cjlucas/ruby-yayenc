@@ -51,6 +51,10 @@ decoder.feed(File.read('encoded.bin-001.ync'))
 decoder.feed(File.read('encoded.bin-003.ync')) # data can be fed out of order
 decoder.feed(File.read('encoded.bin-002.ync'))
 
+# check for decoding errors
+decoder.errors?
+# => false
+
 # verify all parts have been fed to decoder
 decoder.done?
 # => true

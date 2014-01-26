@@ -23,6 +23,7 @@ module YAYEnc
       # key: byte range value: pcrc32 integer value
       @pcrc32 = {}
       @done = false # flag set when all parts are processed
+      @error_count = 0
 
       if dest.is_a?(String)
         @dirname = Pathname.new(dest)
@@ -67,6 +68,10 @@ module YAYEnc
       @dest_io = File.open(file_path, 'wb')
     end
 
+    def errors?
+      @error_count > 0
+    end
+
     def done?
       return true if @done
 
@@ -83,7 +88,7 @@ module YAYEnc
     end
 
     def crc32
-      warn 'missing parts, crc32 will be incorrect' unless done?
+      logw 'missing parts, crc32 will be incorrect' unless done?
       sbr = sorted_byte_ranges
 
       return 0 if sbr.empty?
@@ -135,12 +140,14 @@ module YAYEnc
       @pcrc32[part.byte_range] = pcrc32
 
       if @opts[:verify]
-        unless pcrc32 == part.pcrc32
+        unless part.pcrc32.zero? || pcrc32 == part.pcrc32
+          @error_count += 1
           logw 'pcrc32 values do not match'
           logd "actual: #{pcrc32.to_s(16)}, expected: #{part.pcrc32.to_s(16)}"
         end
 
         unless data_size == part.part_size
+          @error_count += 1
           logd "sio.size: #{sio.size}"
           logw 'part size does not match'
           logd "actual: #{data_size}, expected: #{part.part_size}"
@@ -150,12 +157,15 @@ module YAYEnc
       if @done = done? && @opts[:verify]
         logd "received all parts"
         crc32_value = crc32
-        unless crc32_value == @expected_crc32
+        # can't assume part(s) contain crc32 value
+        unless @expected_crc32.zero? || crc32_value == @expected_crc32
+          @error_count += 1
           logw 'crc32 values do not match'
           logd "actual: #{crc32_value.to_s(16)}, expected: #{@expected_crc32.to_s(16)}"
         end
 
         unless @actual_size == @expected_size
+          @error_count += 1
           logw 'total size does not match'
           logd "actual: #{@actual_size}, expected: #{@expected_size}"
         end
