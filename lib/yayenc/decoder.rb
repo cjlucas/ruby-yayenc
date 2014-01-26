@@ -86,10 +86,8 @@ module YAYEnc
 
       return 0 if sbr.empty?
 
-      crc32 = @pcrc32[sbr[0]]
-      return crc32 if sbr.size == 1
-
-      sbr[1..-1].each do |range|
+      crc32 = 0
+      sbr.each do |range|
         crc32 = Zlib.crc32_combine(crc32, @pcrc32[range], range.size)
       end
 
