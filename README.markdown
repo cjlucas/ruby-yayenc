@@ -1,4 +1,4 @@
-YAYEnc is a 100% Ruby yEnc encoder (no decoder yet).
+YAYEnc is a 100% Ruby yEnc encoding/decoding solution.
 
 Disclaimer: This is considered alpha software, so the API may change without warning
 
@@ -43,8 +43,7 @@ end
 
 require 'yayenc'
 
-# Decoder will accept either a destination directory
-# or a StringIO object to write to
+# Decoder will accept either a destination directory or a StringIO object to write to
 decoder = YAYEncode::Decoder.new('/path/to/destination')
 
 # feed decoder yEnc data
@@ -52,7 +51,7 @@ decoder.feed(File.read('encoded.bin-001.ync'))
 decoder.feed(File.read('encoded.bin-003.ync')) # data can be fed out of order
 decoder.feed(File.read('encoded.bin-002.ync'))
 
-# check if all parts have been fed to decoder
+# verify all parts have been fed to decoder
 decoder.done?
 # => true
 
@@ -70,5 +69,5 @@ puts decoder.file_path
 
 ## TODO ##
 - Documentation
-- Decoder
+- More decoding options
 - Threading support
