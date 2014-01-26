@@ -38,24 +38,12 @@ module YAYEnc
       @name
     end
 
-    def name=(value)
-      unless @name.nil? || @name.eql?(value)
-        warn 'resetting name to a different name'
-      end
-
-      @name = value
-    end
-
     def expected_size
       @expected_size
     end
 
-    def expected_size=(value)
-      unless @expected_size.zero? || value == @expected_size
-        warn 'changing expected_size'
-      end
-
-      @expected_size = value
+    def file_path
+      @dirname + @name unless @dirname.nil? || @name.nil?
     end
 
     def feed(data)
@@ -73,9 +61,8 @@ module YAYEnc
     def dest_io
       return @dest_io unless @dest_io.nil?
 
-      path = @dirname + @name
-      logd "will write decoded data to #{path}"
-      @dest_io = File.open(path, 'wb')
+      logd "will write decoded data to #{file_path}"
+      @dest_io = File.open(file_path, 'wb')
     end
 
     def done?
@@ -111,6 +98,21 @@ module YAYEnc
 
     private
 
+    def name=(value)
+      unless @name.nil? || @name.eql?(value)
+        logw 'resetting name to a different name'
+      end
+
+      @name = value
+    end
+
+    def expected_size=(value)
+      unless @expected_size.zero? || value == @expected_size
+        logw 'changing expected_size'
+      end
+
+      @expected_size = value
+    end
 
     def decode_part(part)
       sio = StringIO.new
