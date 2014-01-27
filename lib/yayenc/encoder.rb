@@ -68,33 +68,27 @@ module YAYEnc
       part.line_width = @opts[:line_width]
       part.part_size = data.size
 
-      StringIO.open(data) do |data_io|
-        until data_io.eof?
-          line_data = data_io.read(@opts[:line_width])
-          part.pcrc32 = Zlib.crc32(line_data, part.pcrc32)
-          part << encode_line(line_data).read
+      line_byte_cnt = 0
+      data.each_byte do |byte|
+        enc = (byte + 42) % 256
+        part.pcrc32 = Zlib.crc32(byte.chr, part.pcrc32)
+
+        if SPECIAL_BYTES.include?(enc)
+          part << 0x3D # =
+          line_byte_cnt += 1
+          enc = (enc + 64) % 256
+        end
+
+        part << enc
+        line_byte_cnt += 1
+
+        if line_byte_cnt >= @opts[:line_width]
+          part << [0x0D, 0x0A]
+          line_byte_cnt = 0
         end
       end
 
       part
     end
-
-    def encode_line(data)
-      enc_io = StringIO.new
-
-      data.each_byte do |byte|
-        byte = (byte + 42) % 256
-        if SPECIAL_BYTES.include?(byte)
-          enc_io.putc 0x3D
-          byte = (byte + 64) % 256
-        end
-
-        enc_io.putc byte
-      end
-
-      enc_io.rewind
-      enc_io
-    end
-
   end
 end

@@ -16,7 +16,7 @@ module YAYEnc
         next unless in_data || line =~ /^=ybegin\s/i
         # an "invalid byte sequence" exception will be thrown if
         # a regexp check is used on a yEnc data line, so use substring
-        part << line and next unless line[0, 2].eql?("=y")
+        part << line.bytes and next unless line[0, 2].eql?("=y")
 
         part.multi_part = true if line =~ /^=ypart\s/i
 
@@ -36,18 +36,18 @@ module YAYEnc
     end
 
     def initialize
-      @lines = []
+      @data = [] # bytes
       @pcrc32 = 0
       @crc32 = 0
       @part_num = 1
     end
 
-    def <<(line)
-      @lines << line.chomp
+    def <<(data)
+      data.is_a?(Array) ? @data += data : @data << data
     end
 
     def data
-      @lines.join("\r\n")
+      @data.pack('c*')
     end
 
     def byte_range
@@ -61,6 +61,10 @@ module YAYEnc
     def multi_part?
       # part_total will be nil if total= attribute isn't found
       !!@multi_part || (part_total || 0) > 1
+    end
+
+    def part_size
+      multi_part? ? @part_size : @total_size
     end
 
     def to_s
