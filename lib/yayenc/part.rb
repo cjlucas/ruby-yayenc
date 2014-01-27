@@ -16,7 +16,11 @@ module YAYEnc
         next unless in_data || line =~ /^=ybegin\s/i
         # an "invalid byte sequence" exception will be thrown if
         # a regexp check is used on a yEnc data line, so use substring
-        part << line.bytes and next unless line[0, 2].eql?("=y")
+        unless line[0, 2].eql?("=y")
+          # String#bytes returns an Enumerator instead of an Array in Ruby 1.9
+          line.each_byte { |byte| part << byte }
+          next
+        end
 
         part.multi_part = true if line =~ /^=ypart\s/i
 
