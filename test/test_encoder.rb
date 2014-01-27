@@ -52,3 +52,29 @@ class TestEncoderMultiPart < Test::Unit::TestCase
 
   end
 end
+
+class TestRoundTrip < Test::Unit::TestCase
+  include YAYEncSpecHelper
+
+  def setup
+    @dec = YAYEnc::Decoder.new(StringIO.new)
+  end
+
+  def test_roundtrip_01
+    YAYEnc::Encoder.encode(file_path('dec1.txt')) do |part|
+      @dec.feed(part.to_s)
+    end
+
+    assert !@dec.errors?
+    assert @dec.done?
+  end
+
+  def test_roundtrip_02
+    YAYEnc::Encoder.encode(file_path('dec2.jpg'), part_size: 999) do |part|
+      @dec.feed(part.to_s)
+    end
+
+    assert !@dec.errors?
+    assert @dec.done?
+  end
+end
